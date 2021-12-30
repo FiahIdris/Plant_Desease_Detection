@@ -1,0 +1,10 @@
+uvicorn
+fastapi
+pydantic
+tensorflow
+numpy
+PIL
+io
+gunicorn
+uvloop
+httptools

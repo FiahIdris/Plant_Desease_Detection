@@ -3,3 +3,4 @@ plant_images
 .vscode
 .ipynb_checkpoints
 PlantingML.pem
+__pycache__
