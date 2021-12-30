@@ -3,7 +3,6 @@ fastapi
 pydantic
 tensorflow
 numpy
-io
 gunicorn
 uvloop
 httptools
