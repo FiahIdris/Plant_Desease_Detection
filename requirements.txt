@@ -3,7 +3,7 @@ fastapi
 pydantic
 tensorflow
 numpy
-PIL
+PIL==8.4.0
 io
 gunicorn
 uvloop
