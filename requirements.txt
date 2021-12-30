@@ -1,7 +1,5 @@
 uvicorn
 fastapi
 pydantic
+tensorflow
 numpy
-gunicorn
-uvloop
-httptools
