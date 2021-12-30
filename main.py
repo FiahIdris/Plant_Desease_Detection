@@ -65,5 +65,5 @@ async def predict_image(file: UploadFile = File(...)):
         'confidence': np.round(float(confidence),4),
     }
 
-# if __name__ == "__main__":
-#     uvicorn.run(app, host='localhost', port=8000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0",port=8080)
