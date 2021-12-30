@@ -5,6 +5,7 @@ from tensorflow.keras.models import load_model
 from io import BytesIO
 from PIL import Image
 import numpy as np
+import uvicorn
 
 app = FastAPI()
 
@@ -53,4 +54,4 @@ async def predict_image(file: UploadFile = File(...)):
     }
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",port=8080)
+    uvicorn.run(app, host='0.0.0.0')
