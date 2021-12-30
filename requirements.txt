@@ -3,7 +3,6 @@ fastapi
 pydantic
 tensorflow
 numpy
-pillow
 io
 gunicorn
 uvloop
