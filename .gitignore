@@ -4,3 +4,5 @@ plant_images
 .ipynb_checkpoints
 PlantingML.pem
 __pycache__
+language_translation.ipynb
+resnetv2_model.h5

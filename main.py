@@ -23,11 +23,12 @@ input_shape = classifier.layers[0].input_shape
 
 @app.get("/")
 def main_page():
-    return {"Hello" : "World"}
+    return "Hello, visit us on https://planting-project.herokuapp.com/docs"
 
 @app.get("/class-names")
 def get_available_class():
     return {"crop_names":CROP_NAMES, "class_names": CLASS_NAMES,}
+
 
 # @app.put("/items/{item_id}")
 # def update_item(item_id: int, item:Item):
@@ -50,7 +51,8 @@ async def predict_new_image(file: UploadFile = File(...)):
     index = prediction.argmax()
     confidence = np.max(prediction)
     return {
-        'prediction': CLASS_NAMES[index],
+        'prediction_crop' :CLASS_NAMES[index].split("__",1)[0],
+        'prediction_class': CLASS_NAMES[index],
         'confidence': np.round(float(confidence),4),
     }
 
