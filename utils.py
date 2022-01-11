@@ -75,6 +75,7 @@ def run_odt_and_draw_results(image_path, threshold=0.3):
   # Plot the detection results on the input image
   original_image_np = original_image.numpy().astype(np.uint8)
   count = 0
+  labels = []
   
   for obj in results:
     # Convert the object bounding box from relative coordinates to absolute
@@ -97,10 +98,11 @@ def run_odt_and_draw_results(image_path, threshold=0.3):
     # Make adjustments to make the label visible for all objects
     y = ymin - 15 if ymin - 15 > 15 else ymin + 15
     label = "{}: {:.0f}%".format(classes[class_id], obj['score'] * 100)
+    labels.append(obj['score'] * 100)
     cv2.putText(original_image_np, label, (xmin, y),
         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
   # Return the final image
   original_uint8 = original_image_np.astype(np.uint8)
-  return {'image':original_uint8, 'totalLeaf': len(results)}
+  return {'image':original_uint8, 'totalLeaf': len(results), 'label':labels}
 
