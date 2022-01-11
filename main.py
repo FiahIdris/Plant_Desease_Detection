@@ -1,4 +1,4 @@
-from starlette.responses import StreamingResponse
+
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 from tensorflow.keras.models import load_model
@@ -6,9 +6,6 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 import uvicorn
-from utils import run_odt_and_draw_results
-import cv2
-from tensorflow.keras.preprocessing import image
 
 app = FastAPI()
 CROP_NAMES = ['Apple','Corn','Grape','Pepper','Potato','Strawberry','Tomato']
@@ -36,50 +33,6 @@ def main_page():
 @app.get("/class-names")
 def get_available_class():
     return {"crop_names":CROP_NAMES, "class_names": CLASS_NAMES,}
-
-@app.post("/detect-object")
-async def detect_object(file: UploadFile = File(...)):
-    contents = await file.read()
-    detector = run_odt_and_draw_results(contents)
-    res, im_png = cv2.imencode(".png", detector['image'])
-
-    predict_crop = ''
-    predict_class= ''
-    
-    if detector['totalLeaf'] == 1:
-        # read image contain
-        pil_image = Image.open(BytesIO(contents))
-        # resize image to expected input shape
-        pil_image = pil_image.resize((input_shape[1], input_shape[2]))
-
-        # convert imgae to numpy format
-        numpy_image = np.array(pil_image).reshape((input_shape[1], input_shape[2], input_shape[3]))
-    
-        # scale data
-        numpy_image = numpy_image / 255.0
-        # generate prediction
-        prediction_array = np.array([numpy_image])
-        prediction = classifier.predict(prediction_array)
-        index = prediction.argmax()
-        predict_crop = CLASS_NAMES[index].split("__",1)[0]
-        predict_class= CLASS_NAMES[index]
-        
-    if detector['totalLeaf'] > 1:
-        index_to_predict = np.array(detector['label']).argmax() +1
-        img= image.load_img(f'contour_{index_to_predict}.png', target_size=(256,256))
-        img_array = image.img_to_array(img)
-        img_batch = np.expand_dims(img_array, axis=0)
-        img_batch = img_batch/255
-        prediction = classifier.predict(img_batch)
-        index = prediction.argmax()
-        predict_crop = CLASS_NAMES[index].split("__",1)[0]
-        predict_class= CLASS_NAMES[index]
-   
-            
-    totalLeaf = str(detector['totalLeaf'])
-    return StreamingResponse(content=BytesIO(im_png.tobytes()), media_type="image/png",headers={'totalLeaf':totalLeaf,'crop':predict_crop,'class':predict_class})
-
-
 
 @app.post("/predict-plant")
 async def predict_plant(plant:Plant):
