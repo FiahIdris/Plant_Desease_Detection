@@ -1,4 +1,4 @@
-from typing import Optional
+from starlette.responses import StreamingResponse
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 from tensorflow.keras.models import load_model
@@ -6,7 +6,8 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 import uvicorn
-import os
+from utils import run_odt_and_draw_results
+import cv2
 
 app = FastAPI()
 CROP_NAMES = ['Apple','Corn','Grape','Pepper','Potato','Strawberry','Tomato']
@@ -23,8 +24,8 @@ class Plant(BaseModel):
     rainfall: float
     
 # Load models
-classifier = load_model('my_model.h5')
-recommender = load_model('recommender_system.h5')
+classifier = load_model('models/my_model.h5')
+recommender = load_model('models/recommender_system.h5')
 input_shape = classifier.layers[0].input_shape
 
 @app.get("/")
@@ -34,6 +35,14 @@ def main_page():
 @app.get("/class-names")
 def get_available_class():
     return {"crop_names":CROP_NAMES, "class_names": CLASS_NAMES,}
+
+@app.post("/detect-object")
+async def detect_object(file: UploadFile = File(...)):
+    contents = await file.read()
+    detector = run_odt_and_draw_results(contents)
+    res, im_png = cv2.imencode(".png", detector['image'])
+    return StreamingResponse(BytesIO(im_png.tobytes()), media_type="image/png")
+
 
 @app.post("/predict-plant")
 async def predict_plant(plant:Plant):
@@ -45,11 +54,6 @@ async def predict_plant(plant:Plant):
         'confidence': np.round(float(confidence),4),
     }
 
-
-# @app.put("/items/{item_id}")
-# def update_item(item_id: int, item:Item):
-#     return {"item_name":item.name, "item_id":item_id}
-
 @app.post("/predict-leaf-disease")
 async def predict_leaf_disease(file: UploadFile = File(...)):
     # read image contain
@@ -57,8 +61,10 @@ async def predict_leaf_disease(file: UploadFile = File(...)):
     pil_image = Image.open(BytesIO(contents))
     # resize image to expected input shape
     pil_image = pil_image.resize((input_shape[1], input_shape[2]))
+
     # convert imgae to numpy format
     numpy_image = np.array(pil_image).reshape((input_shape[1], input_shape[2], input_shape[3]))
+   
     # scale data
     numpy_image = numpy_image / 255.0
     # generate prediction
