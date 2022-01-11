@@ -2,8 +2,6 @@ import cv2
 import tensorflow as tf
 import numpy as np
 import numpy as np
-import matplotlib.pyplot as plt
-
 
 model_path = 'models/model.tflite'
 classes = np.load("models/classes.npy")
@@ -13,7 +11,6 @@ COLORS = np.random.randint(0, 255, size=(len(classes), 3), dtype=np.uint8)
 
 def crop_image(img,  ymin, xmin, ymax, xmax, n):
     cropped_image = img[ymin:ymax, xmin:xmax]
-    plt.imshow(cropped_image)
     cv2.imwrite(f'contour_{n}.png', cropped_image)
 
 def preprocess_image(image_path, input_size):
