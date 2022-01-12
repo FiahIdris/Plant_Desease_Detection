@@ -10,8 +10,7 @@ import cv2
 from tensorflow.keras.preprocessing import image
 
 app = FastAPI()
-CROP_NAMES = ['Apple','Corn','Grape','Pepper','Potato','Strawberry','Tomato']
-CLASS_NAMES = ['Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_apple_rust', 'Apple___healthy', 'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot', 'Corn_(maize)___Common_rust', 'Corn_(maize)___Northern_Leaf_Blight', 'Corn_(maize)___healthy', 'Grape___Black_rot', 'Grape___Esca_(Black_Measles)', 'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)', 'Grape___healthy', 'Pepper_bell___Bacterial_spot', 'Pepper_bell___healthy', 'Potato___Early_blight', 'Potato___Late_blight', 'Potato___healthy', 'Strawberry___Leaf_scorch', 'Strawberry___healthy', 'Tomato___Bacterial_spot', 'Tomato___Early_blight', 'Tomato___Late_blight', 'Tomato___Leaf_Mold', 'Tomato___Septoria_leaf_spot', 'Tomato___Spider_mites Two-spotted_spider_mite', 'Tomato___Target_Spot', 'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 'Tomato___Tomato_mosaic_virus', 'Tomato___healthy']
+CLASS_NAMES = ['Apple___Scab', 'Apple___Black_rot', 'Apple___Cedar_rust', 'Apple___Healthy', 'Corn___Cercospora_leaf_spot', 'Corn___Common_rust', 'Corn___Leaf_blight', 'Corn___Healthy', 'Grape___Black_rot', 'Grape___Esca_(Black_Measles)', 'Grape___Leaf_blight', 'Grape___Healthy', 'Pepper_bell___Bacterial_spot', 'Pepper_bell___Healthy', 'Potato___Early_blight', 'Potato___Late_blight', 'Potato___Healthy', 'Strawberry___Leaf_scorch', 'Strawberry___Healthy', 'Tomato___Bacterial_spot', 'Tomato___Early_blight', 'Tomato___Late_blight', 'Tomato___Leaf_mold', 'Tomato___Septoria_leaf_spot', 'Tomato___Spider_mites', 'Tomato___Target_spot', 'Tomato___Yellow_leaf_curl_virus', 'Tomato___Mosaic_virus', 'Tomato___Healthy']
 
 # Load models
 classifier = load_model('models/my_model.h5')
@@ -47,7 +46,13 @@ async def detect_object(file: UploadFile = File(...)):
         prediction = classifier.predict(prediction_array)
         index = prediction.argmax()
         predict_crop = CLASS_NAMES[index].split("__",1)[0]
-        predict_class= CLASS_NAMES[index]
+        predict_class= CLASS_NAMES[index].split("__",1)[1][1:]
+        
+        image2 = Image.open(f'contour_1.png')
+        imgio = BytesIO()
+        image2.save(imgio, 'PNG')
+        imgio.seek(0)
+        
         
     if detector['totalLeaf'] > 1:
         index_to_predict = np.array(detector['label']).argmax() +1
@@ -58,7 +63,7 @@ async def detect_object(file: UploadFile = File(...)):
         prediction = classifier.predict(img_norm)
         index = prediction.argmax()
         predict_crop = CLASS_NAMES[index].split("__",1)[0]
-        predict_class= CLASS_NAMES[index]  
+        predict_class= CLASS_NAMES[index].split("__",1)[1][1:]
         image2 = Image.open(f'contour_{index_to_predict}.png')
         imgio = BytesIO()
         image2.save(imgio, 'PNG')
