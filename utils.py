@@ -11,7 +11,10 @@ COLORS = np.random.randint(0, 255, size=(len(classes), 3), dtype=np.uint8)
 
 def crop_image(img,  ymin, xmin, ymax, xmax, n):
     cropped_image = img[ymin:ymax, xmin:xmax]
-    cv2.imwrite(f'contour_{n}.png', cropped_image)
+    im_rgb = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB)
+
+    cv2.imwrite(f'contour_{n}.png', im_rgb)
+
 
 def preprocess_image(image_path, input_size):
   """Preprocess the input image to feed to the TFLite model"""
@@ -100,6 +103,7 @@ def run_odt_and_draw_results(image_path, threshold=0.3):
         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
   # Return the final image
+
   original_uint8 = original_image_np.astype(np.uint8)
   return {'image':original_uint8, 'totalLeaf': len(results), 'label':labels}
 
